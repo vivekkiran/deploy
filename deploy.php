@@ -1,3 +1,6 @@
+@markomarkovic @bblue @brandondixon @oodavid @bjoerne2 @0rca @cheesypoof
+RawBlameHistory     
+402 lines (359 sloc)  11.4 KB
 <?php
 /**
  * Simple PHP Git deploy script
@@ -7,9 +10,7 @@
  * @version 1.3.1
  * @link    https://github.com/markomarkovic/simple-php-git-deploy/
  */
-
 // =========================================[ Configuration start ]===
-
 /**
  * It's preferable to configure the script using `deploy-config.php` file.
  *
@@ -23,7 +24,6 @@ if (file_exists(basename(__FILE__, '.php').'-config.php')) {
 } else {
 	define('CONFIG_FILE', __FILE__);
 }
-
 /**
  * Protect the script from unauthorized access by using a secret access token.
  * If it's not present in the access URL as a GET variable named `sat`
@@ -32,7 +32,6 @@ if (file_exists(basename(__FILE__, '.php').'-config.php')) {
  * @var string
  */
 if (!defined('SECRET_ACCESS_TOKEN')) define('SECRET_ACCESS_TOKEN', 'BetterChangeMeNowOrSufferTheConsequences');
-
 /**
  * The address of the remote Git repository that contains the code that's being
  * deployed.
@@ -41,7 +40,6 @@ if (!defined('SECRET_ACCESS_TOKEN')) define('SECRET_ACCESS_TOKEN', 'BetterChange
  * @var string
  */
 if (!defined('REMOTE_REPOSITORY')) define('REMOTE_REPOSITORY', 'https://github.com/markomarkovic/simple-php-git-deploy.git');
-
 /**
  * The branch that's being deployed.
  * Must be present in the remote repository.
@@ -49,24 +47,13 @@ if (!defined('REMOTE_REPOSITORY')) define('REMOTE_REPOSITORY', 'https://github.c
  * @var string
  */
 if (!defined('BRANCH')) define('BRANCH', 'master');
-
 /**
  * The location that the code is going to be deployed to.
  * Don't forget the trailing slash!
  *
  * @var string Full path including the trailing slash
  */
-$current_user = get_current_user();
-$target_dir = '/home/'.$current_user.'/public_html/'
-if (!file_exists($target_dir)) {
-     mkdir($target_dir, 0755, true);
-     echo "Path does not exists, Create the path" . $target_dir
-if (!defined('TARGET_DIR')) define('TARGET_DIR', $target_dir);
-     echo "Target Path" . $target_dir
-} else {
-if (!defined('TARGET_DIR')) define('TARGET_DIR', $target_dir);
-     echo "Target Path" . $target_dir
-}
+if (!defined('TARGET_DIR')) define('TARGET_DIR', '/tmp/simple-php-git-deploy/');
 /**
  * Whether to delete the files that are not in the repository but are on the
  * local (server) machine.
@@ -79,7 +66,6 @@ if (!defined('TARGET_DIR')) define('TARGET_DIR', $target_dir);
  * @var boolean
  */
 if (!defined('DELETE_FILES')) define('DELETE_FILES', false);
-
 /**
  * The directories and files that are to be excluded when updating the code.
  * Normally, these are the directories containing files that are not part of
@@ -91,7 +77,6 @@ if (!defined('DELETE_FILES')) define('DELETE_FILES', false);
 if (!defined('EXCLUDE')) define('EXCLUDE', serialize(array(
 	'.git',
 )));
-
 /**
  * Temporary directory we'll use to stage the code before the update. If it
  * already exists, script assumes that it contains an already cloned copy of the
@@ -101,28 +86,24 @@ if (!defined('EXCLUDE')) define('EXCLUDE', serialize(array(
  * @var string Full path including the trailing slash
  */
 if (!defined('TMP_DIR')) define('TMP_DIR', '/tmp/spgd-'.md5(REMOTE_REPOSITORY).'/');
-
 /**
  * Whether to remove the TMP_DIR after the deployment.
  * It's useful NOT to clean up in order to only fetch changes on the next
  * deployment.
  */
 if (!defined('CLEAN_UP')) define('CLEAN_UP', true);
-
 /**
  * Output the version of the deployed code.
  *
  * @var string Full path to the file name
  */
 if (!defined('VERSION_FILE')) define('VERSION_FILE', TMP_DIR.'VERSION');
-
 /**
  * Time limit for each command.
  *
  * @var int Time in seconds
  */
 if (!defined('TIME_LIMIT')) define('TIME_LIMIT', 30);
-
 /**
  * OPTIONAL
  * Backup the TARGET_DIR into BACKUP_DIR before deployment.
@@ -130,7 +111,6 @@ if (!defined('TIME_LIMIT')) define('TIME_LIMIT', 30);
  * @var string Full backup directory path e.g. `/tmp/`
  */
 if (!defined('BACKUP_DIR')) define('BACKUP_DIR', false);
-
 /**
  * OPTIONAL
  * Whether to invoke composer after the repository is cloned or changes are
@@ -141,7 +121,6 @@ if (!defined('BACKUP_DIR')) define('BACKUP_DIR', false);
  * @link http://getcomposer.org/
  */
 if (!defined('USE_COMPOSER')) define('USE_COMPOSER', false);
-
 /**
  * OPTIONAL
  * The options that the composer is going to use.
@@ -150,7 +129,6 @@ if (!defined('USE_COMPOSER')) define('USE_COMPOSER', false);
  * @link http://getcomposer.org/doc/03-cli.md#install
  */
 if (!defined('COMPOSER_OPTIONS')) define('COMPOSER_OPTIONS', '--no-dev');
-
 /**
  * OPTIONAL
  * The COMPOSER_HOME environment variable is needed only if the script is
@@ -160,7 +138,6 @@ if (!defined('COMPOSER_OPTIONS')) define('COMPOSER_OPTIONS', '--no-dev');
  * @link https://getcomposer.org/doc/03-cli.md#composer-home
  */
 if (!defined('COMPOSER_HOME')) define('COMPOSER_HOME', false);
-
 /**
  * OPTIONAL
  * Email address to be notified on deployment failure.
@@ -169,9 +146,7 @@ if (!defined('COMPOSER_HOME')) define('COMPOSER_HOME', false);
  *      e.g. 'someone@example.com' or 'someone@example.com, someone-else@example.com, ...'
  */
 if (!defined('EMAIL_ON_ERROR')) define('EMAIL_ON_ERROR', false);
-
 // ===========================================[ Configuration end ]===
-
 // If there's authorization error, set the correct HTTP header.
 if (!isset($_GET['sat']) || $_GET['sat'] !== SECRET_ACCESS_TOKEN || SECRET_ACCESS_TOKEN === 'BetterChangeMeNowOrSufferTheConsequences') {
 	header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden', true, 403);
@@ -247,9 +222,7 @@ to        <?php echo TARGET_DIR; ?> ...
 <?php
 // The commands
 $commands = array();
-
 // ========================================[ Pre-Deployment steps ]===
-
 if (!is_dir(TMP_DIR)) {
 	// Clone the repository into the TMP_DIR
 	$commands[] = sprintf(
@@ -273,12 +246,10 @@ if (!is_dir(TMP_DIR)) {
 		, TMP_DIR
 	);
 }
-
 // Update the submodules
 $commands[] = sprintf(
 	'git submodule update --init --recursive'
 );
-
 // Describe the deployed version
 if (defined('VERSION_FILE') && VERSION_FILE !== '') {
 	$commands[] = sprintf(
@@ -288,7 +259,6 @@ if (defined('VERSION_FILE') && VERSION_FILE !== '') {
 		, VERSION_FILE
 	);
 }
-
 // Backup the TARGET_DIR
 // without the BACKUP_DIR for the case when it's inside the TARGET_DIR
 if (defined('BACKUP_DIR') && BACKUP_DIR !== false) {
@@ -302,7 +272,6 @@ if (defined('BACKUP_DIR') && BACKUP_DIR !== false) {
 		, TARGET_DIR // We're backing up this directory into BACKUP_DIR
 	);
 }
-
 // Invoke composer
 if (defined('USE_COMPOSER') && USE_COMPOSER === true) {
 	$commands[] = sprintf(
@@ -314,9 +283,7 @@ if (defined('USE_COMPOSER') && USE_COMPOSER === true) {
 		putenv('COMPOSER_HOME='.COMPOSER_HOME);
 	}
 }
-
 // ==================================================[ Deployment ]===
-
 // Compile exclude parameters
 $exclude = '';
 foreach (unserialize(EXCLUDE) as $exc) {
@@ -330,9 +297,7 @@ $commands[] = sprintf(
 	, (DELETE_FILES) ? '--delete-after' : ''
 	, $exclude
 );
-
 // =======================================[ Post-Deployment steps ]===
-
 // Remove the TMP_DIR (depends on CLEAN_UP)
 if (CLEAN_UP) {
 	$commands['cleanup'] = sprintf(
@@ -340,7 +305,6 @@ if (CLEAN_UP) {
 		, TMP_DIR
 	);
 }
-
 // =======================================[ Run the command steps ]===
 $output = '';
 foreach ($commands as $command) {
@@ -360,7 +324,6 @@ foreach ($commands as $command) {
 	);
 	$output .= ob_get_contents();
 	ob_flush(); // Try to output everything as it happens
-
 	// Error handling and cleanup
 	if ($return_code !== 0) {
 		header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
@@ -375,10 +338,7 @@ CHECK THE DATA IN YOUR TARGET DIR!
 		if (CLEAN_UP) {
 			$tmp = shell_exec($commands['cleanup']);
 			printf('
-
-
 Cleaning up temporary files ...
-
 <span class="prompt">$</span> <span class="command">%s</span>
 <div class="output">%s</div>
 '
