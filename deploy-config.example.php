@@ -44,16 +44,17 @@ define('BRANCH', 'master');
  *
  * @var string Full path including the trailing slash
  */
+<?php
 $current_user = get_current_user();
-$target_dir = '/home/'.$current_user.'/public_html/'
+$target_dir = '/home/'.$current_user.'/public_html/';
 if (!file_exists($target_dir)) {
      mkdir($target_dir, 0755, true);
-     echo "Path does not exists, Create the path" . $target_dir
-if (!defined('TARGET_DIR')) define('TARGET_DIR', $target_dir);
-     echo "Target Path" . $target_dir
+     echo "Path does not exists, Create the path" . $target_dir;
+  if (!defined('TARGET_DIR')) define('TARGET_DIR', $target_dir);
+     echo "Target Path" . $target_dir;
 } else {
 if (!defined('TARGET_DIR')) define('TARGET_DIR', $target_dir);
-     echo "Target Path" . $target_dir
+     echo "Target Path" . $target_dir;
 }
 /**
  * Whether to delete the files that are not in the repository but are on the
