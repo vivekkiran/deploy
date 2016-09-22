@@ -44,7 +44,6 @@ define('BRANCH', 'master');
  *
  * @var string Full path including the trailing slash
  */
-<?php
 $current_user = get_current_user();
 $target_dir = '/home/'.$current_user.'/public_html/';
 if (!file_exists($target_dir)) {
