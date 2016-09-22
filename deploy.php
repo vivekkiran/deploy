@@ -1,6 +1,3 @@
-@markomarkovic @bblue @brandondixon @oodavid @bjoerne2 @0rca @cheesypoof
-RawBlameHistory     
-402 lines (359 sloc)  11.4 KB
 <?php
 /**
  * Simple PHP Git deploy script
