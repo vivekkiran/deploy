@@ -100,7 +100,7 @@ if (!defined('VERSION_FILE')) define('VERSION_FILE', TMP_DIR.'VERSION');
  *
  * @var int Time in seconds
  */
-if (!defined('TIME_LIMIT')) define('TIME_LIMIT', 30);
+if (!defined('TIME_LIMIT')) define('TIME_LIMIT', 300);
 /**
  * OPTIONAL
  * Backup the TARGET_DIR into BACKUP_DIR before deployment.
