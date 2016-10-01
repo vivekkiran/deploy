@@ -148,10 +148,6 @@ if (!defined('EMAIL_ON_ERROR')) define('EMAIL_ON_ERROR', false);
 if (!isset($_GET['sat']) || $_GET['sat'] !== SECRET_ACCESS_TOKEN || SECRET_ACCESS_TOKEN === 'BetterChangeMeNowOrSufferTheConsequences') {
 	header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden', true, 403);
 }
-// send some response to the GitLab server
-// GitHub doesn't care what we send
-// but just to be nice :)
-echo "{status:success}";
 
 ob_start();
 ?>
