@@ -66,7 +66,7 @@ if (!defined('TARGET_DIR')) define('TARGET_DIR', $target_dir);
  *
  * @var boolean
  */
-define('DELETE_FILES', false);
+define('DELETE_FILES', true);
 
 /**
  * The directories and files that are to be excluded when updating the code.
@@ -95,7 +95,7 @@ define('TMP_DIR', '/tmp/spgd-'.md5(REMOTE_REPOSITORY).'/');
  * It's useful NOT to clean up in order to only fetch changes on the next
  * deployment.
  */
-define('CLEAN_UP', true);
+define('CLEAN_UP', false);
 
 /**
  * Output the version of the deployed code.
